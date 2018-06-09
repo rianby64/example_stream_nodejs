@@ -15,7 +15,11 @@ function *gen(N) {
       yield false;
     } else {
       len++;
-      yield `${entry},`;
+      if (i == 1) {
+        yield `${entry}`;
+      } else {
+        yield `,${entry}`;
+      }
     }
   }
 }
@@ -23,16 +27,37 @@ if (process.argv[2]) {
   var fs = require('fs');
   var file = fs.createWriteStream('./data.json');
   file.write('{');
-  for (var w of gen(Number(process.argv[2]))) {
+  let chunks = [];
+  let i = 0;
+  for (let w of gen(Number(process.argv[2]))) {
     if (w) {
-      file.write(w);
+      chunks.push(w);
+    }
+
+    if (chunks.length > 1000) {
+      console.log(++i);
+      file.write(chunks.join(''), 'utf8');
+      chunks.length = 0;
     }
   }
-  if (r[r.length - 1] == ',') {
-    r = r.slice(0, r.length - 1);
+
+  if (chunks.length > 0) {
+    file.write(chunks.join(''), 'utf8');
   }
   file.write('}');
-
   file.end();
 }
+
+function generator(N) {
+  let r = '';
+  r += '{';
+  for (let w of gen(N)) {
+    if (w) {
+      r += w;
+    }
+  }
+  r += '}';
+  return r;
+}
+
 module.exports = generator;
