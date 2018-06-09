@@ -28,14 +28,12 @@ if (process.argv[2]) {
   var file = fs.createWriteStream('./data.json');
   file.write('{');
   let chunks = [];
-  let i = 0;
   for (let w of gen(Number(process.argv[2]))) {
     if (w) {
       chunks.push(w);
     }
 
     if (chunks.length > 1000) {
-      console.log(++i);
       file.write(chunks.join(''), 'utf8');
       chunks.length = 0;
     }
